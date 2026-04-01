@@ -58,13 +58,6 @@ function Header() {
           >
             Contact
           </Link>
-          <Link
-            to="/admin/login"
-            className={`nav-link ${isActive("/admin/login") || isActive("/admin") ? "active" : ""}`}
-            onClick={closeMenu}
-          >
-            Admin
-          </Link>
         </nav>
       </div>
     </header>

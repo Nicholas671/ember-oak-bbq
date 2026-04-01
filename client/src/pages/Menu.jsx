@@ -34,25 +34,21 @@ function Menu() {
       key: "dinner",
       title: "Dinner Menu",
       description: "Slow-smoked meats, hearty sides, and pitmaster specialties",
-      icon: "🥩",
     },
     {
       key: "drinks",
       title: "Drinks Menu",
       description: "Craft cocktails, local brews, and curated wines",
-      icon: "🥃",
     },
     {
       key: "specials",
       title: "Specials",
       description: "Chef's seasonal features and limited-time offerings",
-      icon: "⭐",
     },
     {
       key: "happy-hour",
       title: "Happy Hour",
       description: "Discounted bites and drinks, Tuesday through Friday",
-      icon: "🍻",
     },
   ];
 
@@ -110,7 +106,6 @@ function Menu() {
                   if (e.key === "Enter" || e.key === " ") setActiveModal(cat.key);
                 }}
               >
-                <span className="menu-card-icon">{cat.icon}</span>
                 <h3>{cat.title}</h3>
                 <p>{cat.description}</p>
               </div>

@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "../components/Toast";
 
 const API_BASE = "/api";
 
 function Admin() {
-  const navigate = useNavigate();
   const toast = useToast();
+
+  // Auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [loginForm, setLoginForm] = useState({ username: "", password: "" });
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  // Dashboard state
   const [activeTab, setActiveTab] = useState("menu");
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,16 +22,69 @@ function Admin() {
   const [popupSettings, setPopupSettings] = useState({ title: "", message: "", is_active: false });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
 
-  const token = localStorage.getItem("adminToken");
+  const getToken = () => localStorage.getItem("adminToken");
 
   const authHeaders = useCallback(() => ({
-    Authorization: `Bearer ${token}`,
-  }), [token]);
+    Authorization: `Bearer ${getToken()}`,
+  }), []);
 
   const authJsonHeaders = useCallback(() => ({
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  }), [token]);
+    Authorization: `Bearer ${getToken()}`,
+  }), []);
+
+  // Verify token on mount
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      setIsVerifying(false);
+      return;
+    }
+
+    fetch(`${API_BASE}/auth/verify`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem("adminToken");
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem("adminToken");
+      })
+      .finally(() => setIsVerifying(false));
+  }, []);
+
+  // Handle login
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginLoading(true);
+    setLoginError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginForm),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("adminToken", data.token);
+        setIsAuthenticated(true);
+        toast("Welcome back!", "success");
+      } else {
+        setLoginError(data.error || "Invalid credentials.");
+      }
+    } catch (err) {
+      setLoginError("Unable to connect to the server.");
+    } finally {
+      setLoginLoading(false);
+    }
+  };
 
   // Fetch all menu items
   const fetchMenu = useCallback(async () => {
@@ -32,7 +92,7 @@ function Admin() {
       const res = await fetch(`${API_BASE}/menu/all`, { headers: authHeaders() });
       if (res.status === 401 || res.status === 403) {
         localStorage.removeItem("adminToken");
-        navigate("/admin/login");
+        setIsAuthenticated(false);
         return;
       }
       const data = await res.json();
@@ -42,7 +102,7 @@ function Admin() {
     } finally {
       setLoading(false);
     }
-  }, [authHeaders, navigate]);
+  }, [authHeaders]);
 
   // Fetch popup settings
   const fetchPopup = useCallback(async () => {
@@ -60,9 +120,11 @@ function Admin() {
   }, []);
 
   useEffect(() => {
-    fetchMenu();
-    fetchPopup();
-  }, [fetchMenu, fetchPopup]);
+    if (isAuthenticated) {
+      fetchMenu();
+      fetchPopup();
+    }
+  }, [isAuthenticated, fetchMenu, fetchPopup]);
 
   // Toggle happy hour — optimistic UI
   const toggleHappyHour = async (item) => {
@@ -194,11 +256,74 @@ function Admin() {
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
-    navigate("/admin/login");
+    setIsAuthenticated(false);
+    setLoginForm({ username: "", password: "" });
+    toast("Logged out.", "info");
   };
 
   const formatPrice = (p) => p ? parseFloat(p).toFixed(2) : "—";
 
+  // Show loading while verifying token
+  if (isVerifying) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <p style={{ fontFamily: "var(--font-accent)", fontSize: "1.2rem", color: "var(--ash)", fontStyle: "italic" }}>
+          Verifying access...
+        </p>
+      </div>
+    );
+  }
+
+  // Show login form if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <h2>Admin Access</h2>
+          <p className="subtitle">Ember & Oak Management Portal</p>
+
+          {loginError && <div className="error-message">{loginError}</div>}
+
+          <form onSubmit={handleLogin}>
+            <div className="form-group" style={{ textAlign: "left" }}>
+              <label htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                value={loginForm.username}
+                onChange={(e) => setLoginForm({ ...loginForm, username: e.target.value })}
+                required
+                autoComplete="username"
+              />
+            </div>
+
+            <div className="form-group" style={{ textAlign: "left" }}>
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loginLoading}
+              style={{ width: "100%" }}
+            >
+              {loginLoading ? "Signing In..." : "Sign In"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Dashboard (authenticated)
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -420,7 +545,7 @@ function Admin() {
       {showForm && (
         <MenuItemForm
           item={editingItem}
-          token={token}
+          token={getToken()}
           onClose={() => { setShowForm(false); setEditingItem(null); }}
           onSaved={() => { setShowForm(false); setEditingItem(null); fetchMenu(); toast(editingItem ? "Item updated!" : "Item added!", "success"); }}
         />
