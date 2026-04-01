@@ -611,18 +611,19 @@ body {
   right: 0;
   height: 4px;
   background: linear-gradient(90deg, var(--ember), var(--amber), var(--ember));
-  opacity: 0;
-  transition: opacity 0.3s;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .menu-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-  border-color: var(--amber);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(62, 33, 15, 0.35);
+  border-color: rgba(212, 120, 10, 0.3);
 }
 
 .menu-card:hover::before {
-  opacity: 1;
+  transform: scaleX(1);
 }
 
 .menu-card-icon {
@@ -1375,5 +1376,218 @@ body {
   .hero-buttons {
     flex-direction: column;
     align-items: center;
+  }
+}
+
+/* ============================================
+   ENHANCEMENT: Skip-to-Content Link
+   ============================================ */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 10000;
+  background: var(--amber);
+  color: var(--charcoal);
+  padding: 12px 24px;
+  border-radius: 0 0 8px 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ============================================
+   ENHANCEMENT: Focus Rings (Accessibility)
+   ============================================ */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--amber-glow);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(212, 120, 10, 0.2);
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(212, 120, 10, 0.2);
+}
+
+.menu-card:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 4px;
+  transform: translateY(-4px);
+}
+
+.toggle-switch input:focus-visible + .toggle-slider {
+  box-shadow: 0 0 0 3px rgba(212, 120, 10, 0.3);
+}
+
+/* ============================================
+   ENHANCEMENT: Grain / Noise Texture Overlay
+   ============================================ */
+.has-grain {
+  position: relative;
+}
+
+.has-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+.has-grain > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================
+   ENHANCEMENT: Enhanced Menu Card Hover
+   ============================================ */
+.menu-card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ember), var(--amber));
+  z-index: -1;
+  opacity: 0;
+  filter: blur(15px);
+  transition: opacity 0.4s;
+}
+
+.menu-card:hover::after {
+  opacity: 0.3;
+}
+
+.menu-card-icon {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-card:hover .menu-card-icon {
+  transform: scale(1.2) rotate(-5deg);
+}
+
+/* ============================================
+   ENHANCEMENT: Gallery Photo Reveal on Hover
+   ============================================ */
+.gallery-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(44, 24, 16, 0.7) 0%,
+    rgba(44, 24, 16, 0.2) 100%
+  );
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.gallery-item:hover::after {
+  opacity: 0;
+}
+
+.gallery-item img,
+.gallery-item .gallery-placeholder {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-item:hover img,
+.gallery-item:hover .gallery-placeholder {
+  transform: scale(1.08);
+}
+
+/* ============================================
+   ENHANCEMENT: Form Validation Styles
+   ============================================ */
+.form-group.has-error input,
+.form-group.has-error textarea,
+.form-group.has-error select {
+  border-color: var(--ember-light);
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.12);
+}
+
+.field-error {
+  color: var(--ember);
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  animation: fadeInDown 0.25s ease;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================
+   ENHANCEMENT: OpenType Typography Features
+   ============================================ */
+h1, h2, h3, .logo-main, .footer-logo {
+  font-feature-settings: "liga" 1, "kern" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.hero-description, .page-header p {
+  font-feature-settings: "liga" 1, "kern" 1, "onum" 1;
+}
+
+/* ============================================
+   ENHANCEMENT: Mobile Typography
+   ============================================ */
+@media (max-width: 768px) {
+  body {
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  .menu-item-info h4,
+  .about-text p,
+  .hero-description {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  .btn {
+    min-height: 48px;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    min-height: 48px;
   }
 }

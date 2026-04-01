@@ -3,11 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ember & Oak BBQ — Upscale smokehouse dining in Asheville, NC" />
+
+    <!-- Primary SEO -->
+    <title>Ember & Oak BBQ — Upscale Smokehouse Dining | Asheville, NC</title>
+    <meta name="description" content="Slow-smoked perfection meets refined Southern dining. 14-hour brisket, craft cocktails, and warm hospitality in the heart of Asheville." />
+
+    <!-- Open Graph (Facebook, LinkedIn, iMessage previews) -->
+    <meta property="og:type" content="restaurant.restaurant" />
+    <meta property="og:title" content="Ember & Oak BBQ" />
+    <meta property="og:description" content="Upscale smokehouse dining in Asheville, NC. Slow-smoked meats, craft cocktails, and Southern hospitality done right." />
+    <meta property="og:image" content="https://yourdomain.com/images/og-preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="https://yourdomain.com" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter/X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ember & Oak BBQ" />
+    <meta name="twitter:description" content="Upscale smokehouse dining in Asheville, NC." />
+    <meta name="twitter:image" content="https://yourdomain.com/images/og-preview.jpg" />
+
+    <!-- Theme color (browser tab color on mobile) -->
+    <meta name="theme-color" content="#3E210F" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Raleway:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-    <title>Ember & Oak BBQ</title>
+
+    <!-- Restaurant Structured Data for Google Rich Results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Ember & Oak BBQ",
+      "description": "Upscale smokehouse dining featuring 14-hour smoked brisket, craft cocktails, and refined Southern cuisine.",
+      "url": "https://yourdomain.com",
+      "telephone": "+1-828-555-0142",
+      "email": "info@emberandoak.com",
+      "image": "https://yourdomain.com/images/og-preview.jpg",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "127 Smokehouse Lane",
+        "addressLocality": "Asheville",
+        "addressRegion": "NC",
+        "postalCode": "28801",
+        "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 35.5951,
+        "longitude": -82.5515
+      },
+      "priceRange": "$$-$$$",
+      "servesCuisine": ["BBQ", "American", "Southern"],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Tuesday", "Wednesday", "Thursday"],
+          "opens": "16:00",
+          "closes": "22:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Friday", "Saturday"],
+          "opens": "16:00",
+          "closes": "23:00"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Sunday",
+          "opens": "11:00",
+          "closes": "21:00"
+        }
+      ],
+      "sameAs": [
+        "https://instagram.com/emberandoak",
+        "https://facebook.com/emberandoak"
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>

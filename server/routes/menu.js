@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const pool = require("../db");
 const authenticateToken = require("../middleware/auth");
+const cache = require("../middleware/cache");
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, "..", "uploads", "menu");
@@ -36,8 +37,8 @@ const upload = multer({
   },
 });
 
-// GET /api/menu — all available menu items (public)
-router.get("/", async (req, res) => {
+// GET /api/menu — all available menu items (public, cached 60s)
+router.get("/", cache(60), async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT * FROM menu_items WHERE is_available = TRUE ORDER BY category, sort_order, name`
@@ -62,8 +63,8 @@ router.get("/all", authenticateToken, async (req, res) => {
   }
 });
 
-// GET /api/menu/category/:category — items by category (public)
-router.get("/category/:category", async (req, res) => {
+// GET /api/menu/category/:category — items by category (public, cached 60s)
+router.get("/category/:category", cache(60), async (req, res) => {
   try {
     const { category } = req.params;
     const validCategories = ["dinner", "drinks", "specials"];
@@ -83,8 +84,8 @@ router.get("/category/:category", async (req, res) => {
   }
 });
 
-// GET /api/menu/happy-hour — happy hour items (public)
-router.get("/happy-hour", async (req, res) => {
+// GET /api/menu/happy-hour — happy hour items (public, cached 60s)
+router.get("/happy-hour", cache(60), async (req, res) => {
   try {
     const result = await pool.query(
       `SELECT * FROM menu_items WHERE is_happy_hour = TRUE AND is_available = TRUE ORDER BY category, sort_order, name`
@@ -122,6 +123,7 @@ router.post("/", authenticateToken, upload.single("image"), async (req, res) => 
       ]
     );
 
+    cache.clear("/api/menu");
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error("Create item error:", err);
@@ -172,6 +174,7 @@ router.put("/:id", authenticateToken, upload.single("image"), async (req, res) =
       ]
     );
 
+    cache.clear("/api/menu");
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Update item error:", err);
@@ -198,6 +201,7 @@ router.patch("/:id/happy-hour", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "Menu item not found." });
     }
 
+    cache.clear("/api/menu");
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Toggle happy hour error:", err);
@@ -220,6 +224,7 @@ router.patch("/:id/availability", authenticateToken, async (req, res) => {
       return res.status(404).json({ error: "Menu item not found." });
     }
 
+    cache.clear("/api/menu");
     res.json(result.rows[0]);
   } catch (err) {
     console.error("Toggle availability error:", err);
@@ -248,6 +253,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     }
 
     await pool.query("DELETE FROM menu_items WHERE id = $1", [id]);
+    cache.clear("/api/menu");
     res.json({ message: "Menu item deleted successfully." });
   } catch (err) {
     console.error("Delete item error:", err);

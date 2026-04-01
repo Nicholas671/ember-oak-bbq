@@ -1,42 +1,55 @@
 import { useState } from "react";
+import { useFormValidation } from "../hooks/useFormValidation";
+import { useToast } from "../components/Toast";
+import ScrollReveal from "../components/ScrollReveal";
+
+const validators = {
+  name: (v) => (!v.trim() ? "Name is required." : null),
+  email: (v) => {
+    if (!v.trim()) return "Email is required.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Please enter a valid email.";
+    return null;
+  },
+  message: (v) =>
+    !v.trim()
+      ? "Message is required."
+      : v.trim().length < 10
+      ? "Message must be at least 10 characters."
+      : null,
+};
 
 function Contact() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
-  });
-  const [status, setStatus] = useState(null); // 'success' | 'error' | null
+  const { values, errors, touched, handleChange, handleBlur, validateAll, reset } =
+    useFormValidation(
+      { name: "", email: "", phone: "", subject: "", message: "" },
+      validators
+    );
   const [sending, setSending] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [success, setSuccess] = useState(false);
+  const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateAll()) return;
+
     setSending(true);
-    setStatus(null);
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(values),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        setStatus("success");
-        setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+        setSuccess(true);
+        reset();
+        toast("Message sent! We'll get back to you soon.", "success");
       } else {
-        setStatus("error");
+        toast("Something went wrong. Please try again.", "error");
       }
     } catch (err) {
-      setStatus("error");
+      toast("Unable to send message. Please call us directly.", "error");
     } finally {
       setSending(false);
     }
@@ -57,41 +70,42 @@ function Contact() {
       <div className="contact-grid">
         <div className="contact-form-wrapper">
           <form onSubmit={handleSubmit}>
-            {status === "success" && (
+            {success && (
               <div className="success-message">
                 Thank you! Your message has been sent. We'll get back to you soon.
               </div>
             )}
-            {status === "error" && (
-              <div className="error-message">
-                Something went wrong. Please try again or call us directly.
-              </div>
-            )}
 
-            <div className="form-group">
+            <div className={`form-group ${touched.name && errors.name ? "has-error" : ""}`}>
               <label htmlFor="name">Name *</label>
               <input
                 type="text"
                 id="name"
                 name="name"
-                value={formData.name}
+                value={values.name}
                 onChange={handleChange}
-                required
+                onBlur={handleBlur}
                 placeholder="Your full name"
               />
+              {touched.name && errors.name && (
+                <div className="field-error">{errors.name}</div>
+              )}
             </div>
 
-            <div className="form-group">
+            <div className={`form-group ${touched.email && errors.email ? "has-error" : ""}`}>
               <label htmlFor="email">Email *</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                value={formData.email}
+                value={values.email}
                 onChange={handleChange}
-                required
+                onBlur={handleBlur}
                 placeholder="your@email.com"
               />
+              {touched.email && errors.email && (
+                <div className="field-error">{errors.email}</div>
+              )}
             </div>
 
             <div className="form-group">
@@ -100,7 +114,7 @@ function Contact() {
                 type="tel"
                 id="phone"
                 name="phone"
-                value={formData.phone}
+                value={values.phone}
                 onChange={handleChange}
                 placeholder="(555) 555-5555"
               />
@@ -111,7 +125,7 @@ function Contact() {
               <select
                 id="subject"
                 name="subject"
-                value={formData.subject}
+                value={values.subject}
                 onChange={handleChange}
               >
                 <option value="">Select a topic...</option>
@@ -123,16 +137,19 @@ function Contact() {
               </select>
             </div>
 
-            <div className="form-group">
+            <div className={`form-group ${touched.message && errors.message ? "has-error" : ""}`}>
               <label htmlFor="message">Message *</label>
               <textarea
                 id="message"
                 name="message"
-                value={formData.message}
+                value={values.message}
                 onChange={handleChange}
-                required
+                onBlur={handleBlur}
                 placeholder="Tell us what's on your mind..."
               />
+              {touched.message && errors.message && (
+                <div className="field-error">{errors.message}</div>
+              )}
             </div>
 
             <button

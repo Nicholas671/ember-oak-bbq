@@ -1,7 +1,30 @@
+import { useState } from "react";
+import ScrollReveal from "../components/ScrollReveal";
+import Lightbox from "../components/Lightbox";
+
 function About() {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Replace these with your actual image paths when ready
+  const galleryImages = [
+    { src: "/images/gallery-brisket.jpg", alt: "Smoked Brisket" },
+    { src: "/images/gallery-bar.jpg", alt: "Bar & Cocktails" },
+    { src: "/images/gallery-dining.jpg", alt: "Dining Room" },
+    { src: "/images/gallery-smoker.jpg", alt: "The Smoker" },
+    { src: "/images/gallery-team.jpg", alt: "Our Team" },
+    { src: "/images/gallery-patio.jpg", alt: "Outdoor Patio" },
+  ];
+
+  const openLightbox = (index) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
     <>
       <section className="page-section">
+        <ScrollReveal>
         <div className="page-header">
           <p className="overline">Our Story</p>
           <h2>About Ember & Oak</h2>
@@ -11,8 +34,10 @@ function About() {
             around great food.
           </p>
         </div>
+        </ScrollReveal>
 
         {/* Main about section */}
+        <ScrollReveal>
         <div className="about-content">
           <div className="about-text">
             <h3>From Backyard to Table</h3>
@@ -41,8 +66,10 @@ function About() {
             </div>
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Reversed section */}
+        <ScrollReveal>
         <div className="about-content" style={{ marginTop: "3rem" }}>
           <div className="about-image-container" style={{ order: window.innerWidth > 768 ? 0 : 1 }}>
             <div className="about-placeholder">
@@ -69,46 +96,37 @@ function About() {
             </p>
           </div>
         </div>
+        </ScrollReveal>
 
         {/* Photo Gallery */}
         <div style={{ marginTop: "4rem" }}>
+          <ScrollReveal>
           <div className="page-header">
             <p className="overline">Gallery</p>
             <h2>A Taste of the Experience</h2>
             <div className="divider" />
           </div>
+          </ScrollReveal>
 
           <div className="about-gallery">
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                Smoked Brisket Photo
-              </div>
-            </div>
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                Bar & Cocktails Photo
-              </div>
-            </div>
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                Dining Room Photo
-              </div>
-            </div>
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                The Smoker Photo
-              </div>
-            </div>
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                Team / Staff Photo
-              </div>
-            </div>
-            <div className="gallery-item">
-              <div className="gallery-placeholder">
-                Outdoor Patio Photo
-              </div>
-            </div>
+            {galleryImages.map((img, index) => (
+              <ScrollReveal key={index} delay={`${index * 0.1}s`}>
+                <div
+                  className="gallery-item"
+                  onClick={() => openLightbox(index)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") openLightbox(index);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="gallery-placeholder">
+                    {img.alt}
+                  </div>
+                </div>
+              </ScrollReveal>
+            ))}
           </div>
 
           <p style={{
@@ -119,16 +137,17 @@ function About() {
             fontStyle: "italic",
             fontSize: "0.9rem",
           }}>
-            Tip: Replace these placeholders with your own photos in the /client/public/images/ folder
+            Tip: Replace placeholders with your photos in /client/public/images/
           </p>
         </div>
       </section>
 
       {/* Values / Awards section */}
-      <section style={{
+      <section className="has-grain" style={{
         background: "linear-gradient(135deg, var(--oak-dark), var(--charcoal))",
         padding: "5rem 2rem",
       }}>
+        <ScrollReveal>
         <div style={{ maxWidth: "1000px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "2rem", textAlign: "center" }}>
           <div>
             <div style={{ fontFamily: "var(--font-display)", fontSize: "2.5rem", fontWeight: 700, color: "var(--amber)" }}>14</div>
@@ -147,7 +166,23 @@ function About() {
             <div style={{ fontFamily: "var(--font-accent)", color: "var(--ash)", fontStyle: "italic" }}>Local Farm Partners</div>
           </div>
         </div>
+        </ScrollReveal>
       </section>
+
+      {/* Lightbox */}
+      {lightboxOpen && (
+        <Lightbox
+          images={galleryImages}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxOpen(false)}
+          onPrev={() =>
+            setLightboxIndex((i) => (i === 0 ? galleryImages.length - 1 : i - 1))
+          }
+          onNext={() =>
+            setLightboxIndex((i) => (i === galleryImages.length - 1 ? 0 : i + 1))
+          }
+        />
+      )}
     </>
   );
 }

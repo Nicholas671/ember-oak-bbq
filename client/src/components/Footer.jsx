@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 function Footer() {
   return (
-    <footer className="site-footer">
+    <footer className="site-footer has-grain">
       <div className="footer-inner">
         <div className="footer-brand">
           <div className="footer-logo">

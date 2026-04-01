@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/Toast";
 
 const API_BASE = "/api";
 
 function Admin() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState("menu");
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,6 @@ function Admin() {
   const [editingItem, setEditingItem] = useState(null);
   const [popupSettings, setPopupSettings] = useState({ title: "", message: "", is_active: false });
   const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
-  const [message, setMessage] = useState(null); // { type: 'success'|'error', text: '' }
 
   const token = localStorage.getItem("adminToken");
 
@@ -24,12 +25,6 @@ function Admin() {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
   }), [token]);
-
-  // Show temporary messages
-  const flash = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 4000);
-  };
 
   // Fetch all menu items
   const fetchMenu = useCallback(async () => {
@@ -69,41 +64,69 @@ function Admin() {
     fetchPopup();
   }, [fetchMenu, fetchPopup]);
 
-  // Toggle happy hour
+  // Toggle happy hour — optimistic UI
   const toggleHappyHour = async (item) => {
+    const newState = !item.is_happy_hour;
+    const newHHPrice = newState ? (item.price * 0.7).toFixed(2) : null;
+
+    // Optimistically update immediately
+    setMenuItems((prev) =>
+      prev.map((i) =>
+        i.id === item.id
+          ? { ...i, is_happy_hour: newState, happy_hour_price: newHHPrice }
+          : i
+      )
+    );
+    toast(`${item.name} ${newState ? "added to" : "removed from"} Happy Hour`, "success");
+
     try {
-      const newState = !item.is_happy_hour;
       const res = await fetch(`${API_BASE}/menu/${item.id}/happy-hour`, {
         method: "PATCH",
         headers: authJsonHeaders(),
         body: JSON.stringify({
           is_happy_hour: newState,
-          happy_hour_price: newState ? (item.price * 0.7).toFixed(2) : null,
+          happy_hour_price: newHHPrice,
         }),
       });
-      if (res.ok) {
-        fetchMenu();
-        flash("success", `${item.name} ${newState ? "added to" : "removed from"} Happy Hour`);
-      }
+      if (!res.ok) throw new Error("Failed");
     } catch (err) {
-      flash("error", "Failed to toggle happy hour.");
+      // Revert on failure
+      setMenuItems((prev) =>
+        prev.map((i) =>
+          i.id === item.id
+            ? { ...i, is_happy_hour: item.is_happy_hour, happy_hour_price: item.happy_hour_price }
+            : i
+        )
+      );
+      toast(`Failed to update ${item.name}. Change reverted.`, "error");
     }
   };
 
-  // Toggle availability
+  // Toggle availability — optimistic UI
   const toggleAvailability = async (item) => {
+    const newState = !item.is_available;
+
+    setMenuItems((prev) =>
+      prev.map((i) =>
+        i.id === item.id ? { ...i, is_available: newState } : i
+      )
+    );
+    toast(`${item.name} is now ${newState ? "visible" : "hidden"}`, "success");
+
     try {
       const res = await fetch(`${API_BASE}/menu/${item.id}/availability`, {
         method: "PATCH",
         headers: authJsonHeaders(),
-        body: JSON.stringify({ is_available: !item.is_available }),
+        body: JSON.stringify({ is_available: newState }),
       });
-      if (res.ok) {
-        fetchMenu();
-        flash("success", `${item.name} is now ${!item.is_available ? "available" : "hidden"}`);
-      }
+      if (!res.ok) throw new Error("Failed");
     } catch (err) {
-      flash("error", "Failed to toggle availability.");
+      setMenuItems((prev) =>
+        prev.map((i) =>
+          i.id === item.id ? { ...i, is_available: item.is_available } : i
+        )
+      );
+      toast("Failed to update. Change reverted.", "error");
     }
   };
 
@@ -118,10 +141,10 @@ function Admin() {
       });
       if (res.ok) {
         fetchMenu();
-        flash("success", `${item.name} deleted.`);
+        toast(`${item.name} deleted.`, "success");
       }
     } catch (err) {
-      flash("error", "Failed to delete item.");
+      toast("Failed to delete item.", "error");
     }
   };
 
@@ -134,10 +157,10 @@ function Admin() {
         body: JSON.stringify(popupSettings),
       });
       if (res.ok) {
-        flash("success", "Popup settings saved!");
+        toast("Popup settings saved!", "success");
       }
     } catch (err) {
-      flash("error", "Failed to save popup settings.");
+      toast("Failed to save popup settings.", "error");
     }
   };
 
@@ -145,7 +168,7 @@ function Admin() {
   const changePassword = async (e) => {
     e.preventDefault();
     if (passwordForm.newPassword !== passwordForm.confirm) {
-      flash("error", "New passwords don't match.");
+      toast("New passwords don't match.", "error");
       return;
     }
     try {
@@ -159,13 +182,13 @@ function Admin() {
       });
       const data = await res.json();
       if (res.ok) {
-        flash("success", "Password changed successfully!");
+        toast("Password changed successfully!", "success");
         setPasswordForm({ currentPassword: "", newPassword: "", confirm: "" });
       } else {
-        flash("error", data.error || "Failed to change password.");
+        toast(data.error || "Failed to change password.", "error");
       }
     } catch (err) {
-      flash("error", "Failed to change password.");
+      toast("Failed to change password.", "error");
     }
   };
 
@@ -198,11 +221,6 @@ function Admin() {
       </div>
 
       <div className="admin-content">
-        {message && (
-          <div className={message.type === "success" ? "success-message" : "error-message"} style={{ marginBottom: "1.5rem" }}>
-            {message.text}
-          </div>
-        )}
 
         {/* ===== MENU TAB ===== */}
         {activeTab === "menu" && (
@@ -404,7 +422,7 @@ function Admin() {
           item={editingItem}
           token={token}
           onClose={() => { setShowForm(false); setEditingItem(null); }}
-          onSaved={() => { setShowForm(false); setEditingItem(null); fetchMenu(); flash("success", editingItem ? "Item updated!" : "Item added!"); }}
+          onSaved={() => { setShowForm(false); setEditingItem(null); fetchMenu(); toast(editingItem ? "Item updated!" : "Item added!", "success"); }}
         />
       )}
     </div>

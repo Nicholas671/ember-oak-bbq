@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import MenuModal from "../components/MenuModal";
+import Skeleton from "../components/Skeleton";
+import ScrollReveal from "../components/ScrollReveal";
 
 function Menu() {
   const [allItems, setAllItems] = useState([]);
@@ -66,10 +68,19 @@ function Menu() {
 
   if (loading) {
     return (
-      <section className="page-section" style={{ textAlign: "center", minHeight: "50vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: "var(--font-accent)", fontSize: "1.2rem", color: "var(--ash)", fontStyle: "italic" }}>
-          Loading our menu...
-        </p>
+      <section className="page-section">
+        <div className="page-header">
+          <Skeleton type="heading" />
+          <div style={{ maxWidth: "400px", margin: "0 auto" }}>
+            <Skeleton type="text" count={2} />
+          </div>
+        </div>
+        <div className="menu-categories">
+          <Skeleton type="card" />
+          <Skeleton type="card" />
+          <Skeleton type="card" />
+          <Skeleton type="card" />
+        </div>
       </section>
     );
   }
@@ -88,21 +99,22 @@ function Menu() {
         </div>
 
         <div className="menu-categories">
-          {categories.map((cat) => (
-            <div
-              key={cat.key}
-              className="menu-card"
-              onClick={() => setActiveModal(cat.key)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") setActiveModal(cat.key);
-              }}
-            >
-              <span className="menu-card-icon">{cat.icon}</span>
-              <h3>{cat.title}</h3>
-              <p>{cat.description}</p>
-            </div>
+          {categories.map((cat, index) => (
+            <ScrollReveal key={cat.key} delay={`${index * 0.1}s`}>
+              <div
+                className="menu-card"
+                onClick={() => setActiveModal(cat.key)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") setActiveModal(cat.key);
+                }}
+              >
+                <span className="menu-card-icon">{cat.icon}</span>
+                <h3>{cat.title}</h3>
+                <p>{cat.description}</p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </section>

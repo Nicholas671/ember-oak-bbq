@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import SpecialsPopup from "../components/SpecialsPopup";
+import ScrollReveal from "../components/ScrollReveal";
 
 function Home() {
   const [popup, setPopup] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // Check if popup has been dismissed this session
     const dismissed = sessionStorage.getItem("popupDismissed");
     if (dismissed) return;
 
@@ -40,7 +40,7 @@ function Home() {
         />
       )}
 
-      <section className="hero">
+      <section className="hero has-grain">
         <div className="hero-content">
           <p className="hero-tagline">Asheville's Finest Smokehouse</p>
           <h1>
@@ -64,69 +64,79 @@ function Home() {
 
       {/* Highlights Section */}
       <section className="page-section">
-        <div className="page-header">
-          <p className="overline">The Experience</p>
-          <h2>Crafted with Fire & Patience</h2>
-          <div className="divider" />
-          <p>
-            14 hours of slow smoking. Locally sourced hardwoods. Hand-selected
-            prime cuts. This is BBQ elevated to an art form.
-          </p>
-        </div>
+        <ScrollReveal>
+          <div className="page-header">
+            <p className="overline">The Experience</p>
+            <h2>Crafted with Fire & Patience</h2>
+            <div className="divider" />
+            <p>
+              14 hours of slow smoking. Locally sourced hardwoods. Hand-selected
+              prime cuts. This is BBQ elevated to an art form.
+            </p>
+          </div>
+        </ScrollReveal>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🔥</div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
-              Wood-Fired
-            </h3>
-            <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
-              We use a blend of oak and hickory, hand-split every morning.
-              No shortcuts, no gas — just wood, fire, and time.
-            </p>
-          </div>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🥩</div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
-              Prime Cuts
-            </h3>
-            <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
-              We source from local farms and select only USDA Prime and
-              Choice beef. Every brisket is hand-trimmed by our pitmaster.
-            </p>
-          </div>
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🍸</div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
-              Craft Bar
-            </h3>
-            <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
-              Smoked cocktails, local brews, and a curated bourbon list.
-              Our bar program is designed to complement the smoke.
-            </p>
-          </div>
+          <ScrollReveal delay="0s">
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🔥</div>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
+                Wood-Fired
+              </h3>
+              <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
+                We use a blend of oak and hickory, hand-split every morning.
+                No shortcuts, no gas — just wood, fire, and time.
+              </p>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay="0.15s">
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🥩</div>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
+                Prime Cuts
+              </h3>
+              <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
+                We source from local farms and select only USDA Prime and
+                Choice beef. Every brisket is hand-trimmed by our pitmaster.
+              </p>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay="0.3s">
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🍸</div>
+              <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.3rem", color: "var(--oak)", marginBottom: "0.5rem" }}>
+                Craft Bar
+              </h3>
+              <p style={{ color: "var(--ash)", lineHeight: 1.7 }}>
+                Smoked cocktails, local brews, and a curated bourbon list.
+                Our bar program is designed to complement the smoke.
+              </p>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section style={{
+      <section className="has-grain" style={{
         background: "linear-gradient(135deg, var(--oak-dark), var(--charcoal))",
         padding: "5rem 2rem",
         textAlign: "center",
       }}>
-        <p style={{ fontFamily: "var(--font-accent)", fontSize: "0.9rem", color: "var(--amber)", textTransform: "uppercase", letterSpacing: "0.3em", marginBottom: "0.5rem" }}>
-          Happy Hour
-        </p>
-        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2.2rem", color: "var(--cream)", marginBottom: "1rem" }}>
-          Tues – Fri, 4pm – 6pm
-        </h2>
-        <p style={{ fontFamily: "var(--font-accent)", fontSize: "1.1rem", color: "var(--ash)", fontStyle: "italic", maxWidth: "500px", margin: "0 auto 2rem" }}>
-          Discounted bites, draft beers, and signature cocktails.
-          The best way to start your evening.
-        </p>
-        <Link to="/menu" className="btn btn-amber">
-          See Happy Hour Menu
-        </Link>
+        <ScrollReveal>
+          <p style={{ fontFamily: "var(--font-accent)", fontSize: "0.9rem", color: "var(--amber)", textTransform: "uppercase", letterSpacing: "0.3em", marginBottom: "0.5rem" }}>
+            Happy Hour
+          </p>
+          <h2 style={{ fontFamily: "var(--font-display)", fontSize: "2.2rem", color: "var(--cream)", marginBottom: "1rem" }}>
+            Tues – Fri, 4pm – 6pm
+          </h2>
+          <p style={{ fontFamily: "var(--font-accent)", fontSize: "1.1rem", color: "var(--ash)", fontStyle: "italic", maxWidth: "500px", margin: "0 auto 2rem" }}>
+            Discounted bites, draft beers, and signature cocktails.
+            The best way to start your evening.
+          </p>
+          <Link to="/menu" className="btn btn-amber">
+            See Happy Hour Menu
+          </Link>
+        </ScrollReveal>
       </section>
     </>
   );
