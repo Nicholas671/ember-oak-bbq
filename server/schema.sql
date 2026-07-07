@@ -1,9 +1,9 @@
 -- Ember & Oak BBQ Database Schema
 
 -- Drop tables if they exist (for clean re-runs)
-DROP TABLE IF EXISTS menu_items CASCADE;
-DROP TABLE IF EXISTS site_settings CASCADE;
-DROP TABLE IF EXISTS admin_users CASCADE;
+DROP TABLE IF EXISTS menu_items;
+DROP TABLE IF EXISTS site_settings;
+DROP TABLE IF EXISTS admin_users;
 
 -- Menu Items Table
 CREATE TABLE menu_items (

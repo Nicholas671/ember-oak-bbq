@@ -69,6 +69,7 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your_email@gmail.com
 EMAIL_PASS=your_app_password
+SEED_ADMIN_PASSWORD=your_value
 ```
 
 > **Email Setup**: For Gmail, enable 2FA and create an App Password.
@@ -87,14 +88,7 @@ cd client && npm run dev
 - **Client**: http://localhost:5173
 - **Server API**: http://localhost:5000
 
-### 6. Default Admin Login
-
-```
-Username: admin
-Password: emberoak2024
-```
-
-Change this immediately after first login via the admin panel.
+The seed script creates a development admin user with a password in .env. Set this before running node seed.js and always use a strong unique value in a deployed environment. 
 
 ---
 

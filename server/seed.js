@@ -2,13 +2,15 @@ const pool = require("./db");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
+const seedPassword = process.env.SEED_ADMIN_PASSWORD || "devpassword123"; // Default password if not set in .env
+
 const seedDatabase = async () => {
   try {
     console.log("Seeding database...");
 
     // Create default admin user
     const salt = await bcrypt.genSalt(12);
-    const hash = await bcrypt.hash("emberoak2024", salt);
+    const hash = await bcrypt.hash(seedPassword, salt);
 
     await pool.query(
       `INSERT INTO admin_users (username, password_hash, email)
@@ -16,7 +18,7 @@ const seedDatabase = async () => {
        ON CONFLICT (username) DO NOTHING`,
       ["admin", hash, "manager@emberandoak.com"]
     );
-    console.log("Admin user created (username: admin, password: emberoak2024)");
+    console.log(`Admin user created (username: admin, password: ${seedPassword})`);
 
     // Seed menu items
     const menuItems = [
